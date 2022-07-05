@@ -1,0 +1,45 @@
+FROM dlstreamer/dlstreamer:2022.1.0-ubuntu20-dpcpp
+
+USER root
+
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+ENV DEBIAN_FRONTEND noninteractive
+
+ENV FTP_PROXY=http://proxy-chain.intel.com:911
+ENV ftp_proxy=http://proxy-chain.intel.com:911
+
+ENV HTTP_PROXY=http://proxy-chain.intel.com:911
+ENV http_proxy=http://proxy-chain.intel.com:911
+
+ENV HTTPS_PROXY=http://proxy-chain.intel.com:912
+ENV https_proxy=http://proxy-chain.intel.com:912
+
+ENV SOCKS_PROXY=http://proxy-chain.intel.com:1080
+
+RUN apt update && \
+apt install -y x11-apps
+
+
+RUN mkdir /root/neo && cd /root/neo && \
+wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.11485/intel-igc-core_1.0.11485_amd64.deb && \
+wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.11485/intel-igc-opencl_1.0.11485_amd64.deb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/intel-level-zero-gpu-dbgsym_1.3.23599_amd64.ddeb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/intel-level-zero-gpu_1.3.23599_amd64.deb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/intel-opencl-icd-dbgsym_22.26.23599_amd64.ddeb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/intel-opencl-icd_22.26.23599_amd64.deb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/libigdgmm12_22.1.3_amd64.deb && \
+wget https://github.com/intel/compute-runtime/releases/download/22.26.23599/ww26.sum && \
+sha256sum -c ww26.sum && \
+dpkg -i *.deb
+
+RUN apt install -y intel-dlstreamer-samples \
+openvino-samples-2022.1.0 \
+clinfo
+
+
+RUN python3 -m pip install --upgrade pip && python3 -m pip install --ignore-installed  openvino-dev
+
+USER dlstreamer
+RUN cd /opt/intel/dlstreamer/samples && ./download_models.sh
+
