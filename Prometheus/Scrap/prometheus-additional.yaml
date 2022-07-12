@@ -1,3 +1,4 @@
 - job_name: "EFLOW"
+  scrape_interval: 5s
   static_configs:
   - targets: ["10.226.76.90:9100","10.226.76.90:9182","10.226.76.90:3000"]
